@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post reg page</title>
+    <style>
+        div{
+            position:  absolute;
+            right: 10px;
+            top: 5px
+        }
+    </style>
+
+</head>
+<body>
+    <div>
+        <button type="button" onclick="location.href='{% url 'log' %}'">LogOut</button>
+    </div>
+    
+Welcome register here {{e}}
+<br><br>
+<button type="button" onclick="location.href='{% url 'create' %}'">Fill detils here</button>
+</body>
+</html>
