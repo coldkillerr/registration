@@ -12,17 +12,11 @@
     <title>Register</title>
 </head>
 <body>
-    <form action="/postsignup/" method="post">
+    <form method="post">
         {% csrf_token %}
-        Society's name :
-        <input type="text" name="sname"><br><br>
-        Total number of rooms:
-        <input type="text" name="nroom"><br><br>
-        Email :
-        <input type="email" name="email"><br><br>
-        Password :
-        <input type="password" name="pass"><br><br>
-        <input type="submit" value="Signup">
+        {{form}}
+       
+        <button type="submit">Submit</button>
     </form>
     
 </body>

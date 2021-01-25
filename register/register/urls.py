@@ -20,10 +20,10 @@ from . import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.signin),
-    path('postsignin/', views.postsignin),
+    # path('postsignin/', views.postsignin),
     path('logout/', views.logout, name="log"),
     path('signup/', views.signup, name="signup"),
-    path('postsignup/', views.postsignup, name="postsignup"),
+    # path('postsignup/', views.postsignup, name="postsignup"),
     path('create/', views.create, name="create"),
     path('post_create/', views.post_create, name="post_create"),
     path('output/', views.webcam, name="script"),
