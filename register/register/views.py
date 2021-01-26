@@ -1,7 +1,9 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import render,redirect,HttpResponse
 import pyrebase
 from django.contrib import auth
 from .forms import  signInForm,signUpForm,createForm
+from .image_decoder import save_screenshot
+from datetime import datetime
 config = {
     'apiKey': "AIzaSyC87WZEoXzppPa1OWotrHglyaUX1zXKJf4",
     'authDomain': "regi-a7a96.firebaseapp.com",
@@ -16,6 +18,12 @@ config = {
 firebase = pyrebase.initialize_app(config)
 authe = firebase.auth()
 database = firebase.database()
+storage=firebase.storage()
+
+def image_uploader(name):
+    storage.child(name).put(name)
+    return storage.child(name).get_url('None')
+
 
 
 def signin(request):
@@ -36,23 +44,6 @@ def signin(request):
                 return render(request, "signin.html", {"messg": message,'form':form})
     form=signInForm()
     return render(request, "signin.html", {"form": form})
-
-
-# def postsignin(request):
-#     email = request.POST.get("email")
-#     passw = request.POST.get("pass")
-#     form=signInForm()
-
-#     try:
-#         user = authe.sign_in_with_email_and_password(email, passw)
-#     except:
-#         message = "invalid credentials"
-#         return render(request, "signin.html", {"messg": message})
-        
-#     print(user['idToken'])
-#     session_id = user['idToken']
-#     request.session['uid'] = str(session_id)
-#     return render(request, "postsignin.html", {"e": email})
 
 
 def logout(request):
@@ -85,28 +76,6 @@ def signup(request):
     return render(request, "signup.html",{"form":form})
 
 
-# def postsignup(request):
-#     form=signUpForm()
-#     if request.method=='POST':
-#         form=signUpForm(request.POST)
-#         if form.is_valid():
-#             email=form.cleaned_data['email']
-#             password=form.cleaned_data['password']
-#             nroom=form.cleaned_data['nroom']
-#             sname=form.cleaned_data['sname']
-   
-#     try:
-#         user = authe.create_user_with_email_and_password(email, password)
-#     except:
-#         message = "unable to create account, try again"
-#         return redirect('/')
-#     uid = user['localId']
-#     data = {"nroom": nroom}
-
-#     database.child(sname).set(data)
-#     return redirect('/')
-
-
 def create(request):
     import time
     from datetime import datetime, timezone
@@ -119,67 +88,40 @@ def create(request):
     if request.method=='POST':
         form=createForm(request.POST)
         if form.is_valid():
+            print('form valid')
             fname=form.cleaned_data['fname']
             contact1=form.cleaned_data['contact1']
             contact2=form.cleaned_data['contact2']
             room=form.cleaned_data['room']
             adhar=form.cleaned_data['adhar']
-
+            if form.cleaned_data['image_data']:
+                image_data=form.cleaned_data['image_data']
+                print('image received')
+                filename = str(adhar)+str(datetime.now())+'.jpg'
+                image_name = save_screenshot(filename,image_data)
+                image_url = image_uploader(image_name)
+          
             idtoken = request.session['uid']
             a = authe.get_account_info(idtoken)
             a = a['users']
             a = a[0]
             a = a['localId']
-            print("info "+str(a))
+            # print("info "+str(a))
             data = {
                 "fname": fname,
-                "contact1": contact1,
-                "contact2": contact2,
+                "contact1": str(contact1),
+                "contact2":str( contact2),
                 "room": room,
-                "adhar": adhar
+                "adhar": str(adhar),
+                'image':str(image_url)
             }
-            database.child('users').child(millis).child(a).child('reports').set(data)
+            database.child('users').push(data)
+            return HttpResponse('<h1>User registered Succesfully</h1>')
     return render(request,'create.html',{"form":form})
 
 
 def output(request):
     return render(request, "output.html")
-
-
-def post_create(request):
-
-    import time
-    from datetime import datetime, timezone
-    import pytz
-    tz = pytz.timezone('Asia/Kolkata')
-    time_now = datetime.now(timezone.utc).astimezone(tz)
-    millis = int(time.mktime(time_now.timetuple()))
-
-    form=createForm()
-    if request.method=='POST':
-        form=createForm(request.POST)
-        if form.is_valid():
-            fname=form.cleaned_data['fname']
-            contact1=form.cleaned_data['contact1']
-            contact2=form.cleaned_data['contact2']
-            room=form.cleaned_data['room']
-            adhar=form.cleaned_data['adhar']
-
-            idtoken = request.session['uid']
-            a = authe.get_account_info(idtoken)
-            a = a['users']
-            a = a[0]
-            a = a['localId']
-            print("info "+str(a))
-            data = {
-                "fname": fname,
-                "contact1": str(contact1),
-                "contact2": str(contact2),
-                "room": room,
-                "adhar": adhar
-            }
-            database.child('users').child('reports').push(data)
-    return render(request,'create.html',{"form":form})
 
 
 def webcam(request):

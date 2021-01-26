@@ -1,5 +1,9 @@
 from django import  forms
 from phonenumber_field.formfields import PhoneNumberField
+from crispy_forms.helper import FormHelper
+from camera_imagefield import CameraImageField
+from fractions import Fraction
+from webcam.fields import CameraField
 
 
 
@@ -20,4 +24,14 @@ class createForm(forms.Form):
     contact2 =  PhoneNumberField(label='Secondary Contact Number')
     room = forms.CharField(label='Room Number')
     adhar=forms.RegexField(regex="^[2-9]{1}[0-9]{3}\\s[0-9]{4}\\s[0-9]{4}$")
+    image_data = forms.CharField(widget=forms.HiddenInput(), required=False)
+ 
+    def __init__(self, *args, **kwargs):
+        self.helper = FormHelper()
+        self.helper.form_id = "createForm"
+        self.helper.form_method = 'post'
+ 
+        super(createForm, self).__init__(*args, **kwargs)
+    
+    
     # adhar = request.POST.get('adhar')

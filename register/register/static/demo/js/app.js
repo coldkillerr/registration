@@ -69,12 +69,20 @@ function cameraStopped(){
 }
 
 
+
 $("#take-photo").click(function () { 
     beforeTakePhoto();
     let picture = webcam.snap();
     document.querySelector('#download-photo').href = picture;
-    // $('#id_image_data').val(image_data);
-    // $('#agreement_form').submit();
+    afterTakePhoto();
+});
+
+$("#download-photo").click(function () { 
+    beforeTakePhoto();
+    let picture=document.querySelector('#download-photo').href ;
+    console.log('picture'+picture);
+    $('#id_image_data').val(picture);
+    $('#createForm').submit();
     afterTakePhoto();
 });
 
